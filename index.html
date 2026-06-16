@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="PhotoBooth Camera - Aplikasi photobooth interaktif dengan efek keren dan mirroring">
+    <title>✨ PhotoBooth Camera - Capture Your Moments</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-animation">
+        <div class="bg-orb bg-orb-1"></div>
+        <div class="bg-orb bg-orb-2"></div>
+        <div class="bg-orb bg-orb-3"></div>
+        <div class="bg-orb bg-orb-4"></div>
+    </div>
+
+    <!-- Header -->
+    <header id="app-header">
+        <div class="header-content">
+            <div class="logo">
+                <span class="logo-icon">📸</span>
+                <h1>PhotoBooth</h1>
+                <span class="logo-badge">PRO</span>
+            </div>
+            <div class="header-actions">
+                <button id="btn-toggle-mirror" class="header-btn" title="Toggle Mirror">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 3v18M8 6L4 12l4 6M16 6l4 6-4 6"/>
+                    </svg>
+                    <span>Mirror</span>
+                </button>
+                <button id="btn-switch-camera" class="header-btn" title="Switch Camera">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 7h-4l-2-3H10L8 7H4a2 2 0 00-2 2v9a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/>
+                        <circle cx="12" cy="13" r="3"/>
+                    </svg>
+                    <span>Flip</span>
+                </button>
+                <button id="btn-fullscreen" class="header-btn" title="Fullscreen">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/>
+                    </svg>
+                    <span>Full</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main id="app-main">
+        <!-- Camera Section -->
+        <section id="camera-section">
+            <div id="camera-container">
+                <!-- Camera Frame Decoration -->
+                <div class="camera-frame">
+                    <div class="frame-corner frame-corner-tl"></div>
+                    <div class="frame-corner frame-corner-tr"></div>
+                    <div class="frame-corner frame-corner-bl"></div>
+                    <div class="frame-corner frame-corner-br"></div>
+                </div>
+
+                <!-- Video Element -->
+                <video id="camera-video" autoplay playsinline></video>
+                
+                <!-- Canvas for Effects -->
+                <canvas id="effects-canvas"></canvas>
+                
+                <!-- Overlay Effects -->
+                <div id="camera-overlay" class="camera-overlay"></div>
+
+                <!-- Countdown Display -->
+                <div id="countdown-display" class="countdown-display hidden">
+                    <span id="countdown-number">3</span>
+                </div>
+
+                <!-- Flash Effect -->
+                <div id="flash-effect" class="flash-effect"></div>
+
+                <!-- Camera Status -->
+                <div id="camera-status" class="camera-status">
+                    <div class="status-loader"></div>
+                    <p>Menghubungkan kamera...</p>
+                </div>
+
+                <!-- Recording Indicator -->
+                <div id="rec-indicator" class="rec-indicator hidden">
+                    <div class="rec-dot"></div>
+                    <span>LIVE</span>
+                </div>
+
+                <!-- Photo Info Overlay -->
+                <div id="photo-info" class="photo-info">
+                    <span id="current-time" class="info-time"></span>
+                    <span id="current-effect" class="info-effect">Normal</span>
+                </div>
+            </div>
+
+            <!-- Camera Controls -->
+            <div id="camera-controls">
+                <!-- Timer Control -->
+                <div class="control-group">
+                    <label>Timer</label>
+                    <div class="timer-options">
+                        <button class="timer-btn active" data-timer="0">Off</button>
+                        <button class="timer-btn" data-timer="3">3s</button>
+                        <button class="timer-btn" data-timer="5">5s</button>
+                        <button class="timer-btn" data-timer="10">10s</button>
+                    </div>
+                </div>
+
+                <!-- Capture Button -->
+                <button id="btn-capture" class="capture-btn" title="Ambil Foto">
+                    <div class="capture-btn-inner">
+                        <div class="capture-btn-ring"></div>
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 15.2a3.2 3.2 0 100-6.4 3.2 3.2 0 000 6.4z"/>
+                            <path d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/>
+                        </svg>
+                    </div>
+                </button>
+
+                <!-- Burst Mode -->
+                <div class="control-group">
+                    <label>Mode</label>
+                    <div class="timer-options">
+                        <button class="mode-btn active" data-mode="single">Single</button>
+                        <button class="mode-btn" data-mode="burst">Burst 4x</button>
+                        <button class="mode-btn" data-mode="strip">Strip</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Effects Panel -->
+        <section id="effects-panel">
+            <div class="panel-header">
+                <h2>✨ Effects & Filters</h2>
+                <button id="btn-collapse-effects" class="collapse-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="15 18 9 12 15 6"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Filter Categories -->
+            <div class="filter-categories">
+                <button class="category-btn active" data-category="basic">Basic</button>
+                <button class="category-btn" data-category="instagram">Instagram</button>
+                <button class="category-btn" data-category="portrait">Portrait</button>
+                <button class="category-btn" data-category="aesthetic">Aesthetic</button>
+                <button class="category-btn" data-category="vintage">Vintage</button>
+                <button class="category-btn" data-category="creative">Creative</button>
+                <button class="category-btn" data-category="fun">Fun</button>
+                <button class="category-btn" data-category="frames">Frames</button>
+            </div>
+
+            <!-- Effects Grid -->
+            <div id="effects-grid" class="effects-grid">
+                <!-- Effects will be populated by JavaScript -->
+            </div>
+
+            <!-- Adjustments -->
+            <div class="adjustments-section">
+                <h3>🎛️ Adjustments</h3>
+                <div class="adjustment-slider">
+                    <label>Brightness</label>
+                    <input type="range" id="adj-brightness" min="0" max="200" value="100">
+                    <span id="val-brightness">100%</span>
+                </div>
+                <div class="adjustment-slider">
+                    <label>Contrast</label>
+                    <input type="range" id="adj-contrast" min="0" max="200" value="100">
+                    <span id="val-contrast">100%</span>
+                </div>
+                <div class="adjustment-slider">
+                    <label>Saturation</label>
+                    <input type="range" id="adj-saturate" min="0" max="200" value="100">
+                    <span id="val-saturate">100%</span>
+                </div>
+                <div class="adjustment-slider">
+                    <label>Blur</label>
+                    <input type="range" id="adj-blur" min="0" max="20" value="0">
+                    <span id="val-blur">0px</span>
+                </div>
+                <div class="adjustment-slider">
+                    <label>Hue Rotate</label>
+                    <input type="range" id="adj-hue" min="0" max="360" value="0">
+                    <span id="val-hue">0°</span>
+                </div>
+                <button id="btn-reset-adjustments" class="reset-btn">Reset All</button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Gallery Section -->
+    <section id="gallery-section" class="hidden">
+        <div class="gallery-header">
+            <h2>📷 Gallery</h2>
+            <div class="gallery-actions">
+                <button id="btn-download-all" class="gallery-action-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                    </svg>
+                    Download All
+                </button>
+                <button id="btn-clear-gallery" class="gallery-action-btn danger">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"/>
+                        <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                    </svg>
+                    Clear
+                </button>
+            </div>
+        </div>
+        <div id="gallery-grid" class="gallery-grid">
+            <div class="gallery-empty">
+                <span class="empty-icon">📷</span>
+                <p>Belum ada foto. Ayo ambil foto pertamamu!</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gallery Toggle -->
+    <button id="btn-toggle-gallery" class="gallery-toggle">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <polyline points="21 15 16 10 5 21"/>
+        </svg>
+        <span id="gallery-count" class="gallery-count">0</span>
+    </button>
+
+    <!-- Photo Preview Modal -->
+    <div id="photo-modal" class="photo-modal hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <button id="btn-close-modal" class="modal-close">&times;</button>
+            <img id="modal-image" src="" alt="Preview">
+            <div class="modal-actions">
+                <button id="btn-modal-download" class="modal-btn primary">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                    </svg>
+                    Download
+                </button>
+                <button id="btn-modal-delete" class="modal-btn danger">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"/>
+                        <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                    </svg>
+                    Delete
+                </button>
+                <button id="btn-modal-print" class="modal-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="6 9 6 2 18 2 18 9"/>
+                        <path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/>
+                        <rect x="6" y="14" width="12" height="8"/>
+                    </svg>
+                    Print
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden capture canvas -->
+    <canvas id="capture-canvas" style="display:none;"></canvas>
+
+    <script src="app.js"></script>
+</body>
+</html>
