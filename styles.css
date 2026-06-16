@@ -248,7 +248,7 @@ body {
 #camera-container {
     position: relative;
     width: 100%;
-    aspect-ratio: 16 / 9;
+    aspect-ratio: var(--camera-ratio, 16 / 9);
     background: var(--bg-secondary);
     border-radius: var(--radius-xl);
     overflow: hidden;

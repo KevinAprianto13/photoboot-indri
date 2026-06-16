@@ -192,6 +192,10 @@
                 recIndicator.classList.remove('hidden');
                 captureCanvas.width = video.videoWidth;
                 captureCanvas.height = video.videoHeight;
+
+                // Dynamically set container aspect ratio to match camera
+                const ratio = video.videoWidth / video.videoHeight;
+                cameraContainer.style.setProperty('--camera-ratio', ratio.toFixed(4));
             };
         } catch (err) {
             console.error('Camera error:', err);
