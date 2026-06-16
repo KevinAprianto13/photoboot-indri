@@ -582,16 +582,42 @@
                 ctx.drawImage(effectsCanvas, 0, 0);
                 ctx.restore();
             } else {
-                // Capture from video
-                captureCanvas.width = video.videoWidth;
-                captureCanvas.height = video.videoHeight;
+                // Calculate the visible crop area (matching object-fit: cover)
+                const containerRect = cameraContainer.getBoundingClientRect();
+                const containerW = containerRect.width;
+                const containerH = containerRect.height;
+                const videoW = video.videoWidth;
+                const videoH = video.videoHeight;
+
+                const containerRatio = containerW / containerH;
+                const videoRatio = videoW / videoH;
+
+                let sx, sy, sw, sh;
+
+                if (videoRatio > containerRatio) {
+                    // Video is wider - crop sides
+                    sh = videoH;
+                    sw = videoH * containerRatio;
+                    sx = (videoW - sw) / 2;
+                    sy = 0;
+                } else {
+                    // Video is taller - crop top/bottom
+                    sw = videoW;
+                    sh = videoW / containerRatio;
+                    sx = 0;
+                    sy = (videoH - sh) / 2;
+                }
+
+                captureCanvas.width = sw;
+                captureCanvas.height = sh;
+
                 ctx.save();
                 if (state.isMirrored) {
                     ctx.translate(captureCanvas.width, 0);
                     ctx.scale(-1, 1);
                 }
                 ctx.filter = video.style.filter || 'none';
-                ctx.drawImage(video, 0, 0);
+                ctx.drawImage(video, sx, sy, sw, sh, 0, 0, sw, sh);
                 ctx.restore();
             }
 
@@ -962,44 +988,58 @@
     }
 
     function createPhotoStrip(photos) {
-        const stripCanvas = document.createElement('canvas');
-        const stripWidth = 600;
-        const photoHeight = (stripWidth * 3) / 4;
-        const padding = 20;
-        const gap = 8;
-        const bottomPad = 50;
-
-        stripCanvas.width = stripWidth + padding * 2;
-        stripCanvas.height = padding + (photoHeight + gap) * photos.length - gap + bottomPad;
-
-        const ctx = stripCanvas.getContext('2d');
-
-        // White background
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, stripCanvas.width, stripCanvas.height);
-
-        // Load and draw each photo
+        // First load all images to get the actual aspect ratio
+        const images = [];
         let loaded = 0;
+
         photos.forEach((dataUrl, index) => {
             const img = new Image();
             img.onload = () => {
-                const y = padding + (photoHeight + gap) * index;
-                ctx.drawImage(img, padding, y, stripWidth, photoHeight);
+                images[index] = img;
                 loaded++;
-
                 if (loaded === photos.length) {
-                    // Add branding at bottom
-                    ctx.fillStyle = '#666';
-                    ctx.font = '14px Outfit, sans-serif';
-                    ctx.textAlign = 'center';
-                    ctx.fillText('📸 PhotoBooth PRO • ' + new Date().toLocaleDateString('id-ID'), stripCanvas.width / 2, stripCanvas.height - 18);
-
-                    const stripDataUrl = stripCanvas.toDataURL('image/png');
-                    addPhotoToGallery(stripDataUrl);
+                    buildStrip(images);
                 }
             };
             img.src = dataUrl;
         });
+
+        function buildStrip(imgs) {
+            const stripCanvas = document.createElement('canvas');
+            const stripWidth = 600;
+            const padding = 20;
+            const gap = 8;
+            const bottomPad = 50;
+
+            // Use actual aspect ratio from first image
+            const firstImg = imgs[0];
+            const ratio = firstImg.height / firstImg.width;
+            const photoHeight = stripWidth * ratio;
+
+            stripCanvas.width = stripWidth + padding * 2;
+            stripCanvas.height = padding + (photoHeight + gap) * imgs.length - gap + bottomPad;
+
+            const ctx = stripCanvas.getContext('2d');
+
+            // White background
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, stripCanvas.width, stripCanvas.height);
+
+            // Draw each photo
+            imgs.forEach((img, index) => {
+                const y = padding + (photoHeight + gap) * index;
+                ctx.drawImage(img, padding, y, stripWidth, photoHeight);
+            });
+
+            // Add branding at bottom
+            ctx.fillStyle = '#666';
+            ctx.font = '14px Outfit, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('📸 PhotoBooth PRO • ' + new Date().toLocaleDateString('id-ID'), stripCanvas.width / 2, stripCanvas.height - 18);
+
+            const stripDataUrl = stripCanvas.toDataURL('image/png');
+            addPhotoToGallery(stripDataUrl);
+        }
     }
 
     // =====================
